@@ -14,30 +14,36 @@ int main(int argc, char **argv) {
     const char *targetfn = argv[2];
 
     int source = open(sourcefn, O_RDONLY);
+
+    // abrir arquivo origem
     if (source == -1) {
         perror("Erro ao abrir o arquivo de origem");
         exit(EXIT_FAILURE);
     }
 
+    // arquivo origem nao pode ser lido
     if (access(sourcefn, R_OK) == -1) {
         perror("Arquivo de origem não pode ser lido");
         close(source);
         exit(EXIT_FAILURE);
     }
 
+    // arquivo destino ja existente
     if (access(targetfn, F_OK) != -1) {
         fprintf(stderr, "O arquivo destino já existe\n");
         close(source);
         exit(EXIT_FAILURE);
     }
 
+    // abrir arquivo destino
     int target = open(targetfn, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
     if (target == -1) {
         perror("Erro ao abrir o arquivo de destino");
         close(source);
         exit(EXIT_FAILURE);
     }
-
+    
+    // arquivo destino sem permissao de escrita
     if (access(targetfn, W_OK) == -1) {
         perror("O arquivo destino não possui permissão de escrita");
         close(source);
@@ -48,14 +54,16 @@ int main(int argc, char **argv) {
     char buf[1024];
     int s;
 
+
     while ((s = read(source, buf, 1024)) != 0) {
+    //ler arquivo de origem
         if (s == -1) {
             perror("Erro ao ler o arquivo de origem");
             close(source);
             close(target);
             exit(EXIT_FAILURE);
         }
-
+    // escrever arquivo destino
         if (write(target, buf, s) == -1) {
             perror("Erro ao escrever no arquivo de destino");
             close(source);
